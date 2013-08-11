@@ -1,0 +1,9 @@
+dist
+cabal-dev
+.hg
+.hgignore
+*.o
+*.hi
+*.chi
+*.chs.h
+.virthualenv

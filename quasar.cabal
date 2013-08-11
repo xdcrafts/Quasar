@@ -1,0 +1,51 @@
+name:                quasar
+version:             0.0.0.1
+synopsis:            Library set for REST web services over WAI
+description:         Demonstrate the use of WAI (Haskell Web Application Interface) to build a mini-webservce.
+homepage:            https://bitbucket.org/VadimVD/quasar
+license:             Apache-2.0
+license-file:        LICENSE
+author:              Vadim Dubs
+maintainer:          catofflames@gmail.com
+category:            web
+build-type:          Simple
+cabal-version:       >=1.16
+
+library
+  hs-source-dirs: src
+  exposed-modules: Quasar.Api.Http.Header
+    , Quasar.Api.Http.Response
+    , Quasar.Api.Http.Request
+    , Quasar.Api.Http.Query
+    , Quasar.Api.Routing
+    , Quasar.Utils
+  build-depends: base ==4.6.*
+    , wai ==1.4.*
+    , http-types ==0.7.*
+    , bytestring ==0.10.*
+    , warp ==1.3.*
+    , wai-extra ==1.3.*
+    , wai-handler-devel ==1.3.*
+    , text ==0.11.*
+    , conduit ==1.0.*
+    , transformers ==0.3.*
+    , case-insensitive ==0.4.*
+
+executable quasar-example
+  main-is:           Main.hs
+  hs-source-dirs:    quasar-example/src
+  build-depends: base ==4.6.*
+    , http-types ==0.7.*
+    , quasar
+
+executable warp-example
+  main-is:           Main.hs
+  hs-source-dirs:    warp-example/src
+  build-depends: base ==4.6.*
+    , cmdargs ==0.10.*
+    , wai ==1.4.*
+    , http-types ==0.7.*
+    , bytestring ==0.10.*
+    , warp ==1.3.*
+    , wai-extra ==1.3.*
+    , wai-handler-devel ==1.3.*
