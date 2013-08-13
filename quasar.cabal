@@ -13,10 +13,8 @@ cabal-version:       >=1.16
 
 library
   hs-source-dirs: src
-  exposed-modules: Quasar.Api.Http.Header
-    , Quasar.Api.Http.Response
+  exposed-modules: Quasar.Api.Http.Response
     , Quasar.Api.Http.Request
-    , Quasar.Api.Http.Query
     , Quasar.Api.Routing
     , Quasar.Utils
   build-depends: base ==4.6.*
@@ -36,6 +34,7 @@ executable quasar-example
   hs-source-dirs:    quasar-example/src
   build-depends: base ==4.6.*
     , http-types ==0.7.*
+    , bytestring ==0.10.*
     , quasar
 
 executable warp-example

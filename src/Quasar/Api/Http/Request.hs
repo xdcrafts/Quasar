@@ -1,23 +1,22 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Quasar.Api.Http.Request where
 
 import Control.Applicative
-import qualified Data.ByteString.Char8 as BS
+import qualified Data.ByteString as BS
 import Data.Conduit.List (consume)
 import Data.Conduit
 import qualified Data.Text as T
 import Data.Monoid
 import Network.HTTP.Types.Method
-import qualified Network.HTTP.Types.URI
-import qualified Network.HTTP.Types.Header as H
+import Network.HTTP.Types.URI
+import Network.HTTP.Types.Header
 import qualified Network.Wai as W
-import Quasar.Api.Http.Header
-import Quasar.Api.Http.Query
 
 data Request a = Request 
   { requestMethod   :: StdMethod
-  , requestHeaders  :: Headers
+  , requestHeaders  :: RequestHeaders
   , requestQuery    :: Query
-  , requestPath     :: [String]
+  , requestPath     :: [T.Text]
   , requestBody     :: a
   }
   deriving (Eq, Show)
@@ -40,16 +39,16 @@ mapBody r f = Request
   , requestBody     = f . requestBody $ r
   }
 
-parseRawRequestBody :: W.Request -> IO String
-parseRawRequestBody warpRequest = BS.unpack <$> mconcat <$> runResourceT (W.requestBody warpRequest $$ consume)
+parseRawRequestBody :: W.Request -> IO BS.ByteString
+parseRawRequestBody warpRequest = mconcat <$> runResourceT (W.requestBody warpRequest $$ consume)
 
-buildRequest :: W.Request -> String -> Maybe (Request String)
+buildRequest :: W.Request -> BS.ByteString -> Maybe (Request BS.ByteString)
 buildRequest warpRequest body = case parseMethod . W.requestMethod $ warpRequest of
   Left _          -> Nothing
   Right stdMethod -> Just Request
     { requestMethod   = stdMethod
-    , requestHeaders  = fromStdHeaders $ W.requestHeaders warpRequest
-    , requestQuery    = fromStdQuery $ W.queryString warpRequest
-    , requestPath     = map T.unpack (W.pathInfo warpRequest)
+    , requestHeaders  = W.requestHeaders warpRequest
+    , requestQuery    = W.queryString warpRequest
+    , requestPath     = W.pathInfo warpRequest
     , requestBody     = body
     }

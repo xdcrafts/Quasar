@@ -1,21 +1,22 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Quasar.Api.Http.Response where
 
 import qualified Data.ByteString.Char8 as BS
-import qualified Data.ByteString.Lazy.Char8 as LBS
+import qualified Data.ByteString.Lazy as LBS
 import Data.CaseInsensitive
 import Network.HTTP.Types.Status
-import qualified Network.HTTP.Types.Header as H
+import Network.HTTP.Types.Header
 import qualified Network.Wai as W
-import Quasar.Api.Http.Header
+import Quasar.Utils
 
 data Response a = Response
   { responseStatus  :: Status
-  , responseHeaders :: Headers
+  , responseHeaders :: ResponseHeaders
   , responseBody    :: a
   }
   deriving (Eq, Show)
 
-badRequestResponse :: Response (Maybe String)
+badRequestResponse :: Response (Maybe BS.ByteString)
 badRequestResponse = Response
   { responseStatus  = status404
   , responseHeaders = []
@@ -29,7 +30,7 @@ filterHeaders response f = Response
   , responseBody    = responseBody response
   }
 
-withHeaders :: Response a -> Headers -> Response a
+withHeaders :: Response a -> ResponseHeaders -> Response a
 withHeaders response headers = Response
   { responseStatus  = responseStatus response
   , responseHeaders = (responseHeaders response) ++ headers
@@ -43,11 +44,11 @@ mapBody response f = Response
   , responseBody    = f $ responseBody response
   }
 
-buildResponse :: Response (Maybe String) -> W.Response
+buildResponse :: Response (Maybe BS.ByteString) -> W.Response
 buildResponse response =
   W.responseLBS
     (responseStatus response)
-    (toStdHeaders $ responseHeaders response)
+    (responseHeaders response)
     body
   where body = case responseBody response of Nothing         -> LBS.empty
-                                             Just bodyString -> LBS.pack bodyString
+                                             Just bodyString -> bsToLbs bodyString
