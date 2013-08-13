@@ -9,6 +9,7 @@ import qualified Network.Wai.Handler.Warp as W (run)
 import System.Exit
 import System.IO
 
+-- TODO: move to separate module
 bsToLbs :: BS.ByteString -> LBS.ByteString
 bsToLbs = LBS.fromChunks . BS.lines
 
