@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
+import Control.Lens
 import qualified Data.ByteString.Char8 as BS (ByteString)
 import Network.HTTP.Types.Header
 import Network.HTTP.Types.Method
@@ -12,9 +13,9 @@ import Quasar.Utils
 
 router :: Route -> Request BS.ByteString -> Maybe (Response (Maybe BS.ByteString))
 router route request = case route of
-  Route POST _ -> Just Response { responseStatus  = status200
-                                , responseHeaders = [("Content-Type", "text/html")]
-                                , responseBody    = Just $ requestBody request
+  Route POST _ -> Just Response { _responseStatus  = status200
+                                , _responseHeaders = [("Content-Type", "text/html")]
+                                , _responseBody    = Just $ request^.requestBody
                                 }
   otherwise    -> Nothing
 

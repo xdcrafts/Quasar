@@ -28,6 +28,7 @@ library
     , conduit ==1.0.*
     , transformers ==0.3.*
     , case-insensitive ==0.4.*
+    , lens ==3.9
 
 executable quasar-example
   main-is:           Main.hs
@@ -36,6 +37,7 @@ executable quasar-example
     , http-types ==0.7.*
     , bytestring ==0.10.*
     , quasar
+    , lens ==3.9
 
 executable warp-example
   main-is:           Main.hs

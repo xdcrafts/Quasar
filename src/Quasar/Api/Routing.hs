@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Quasar.Api.Routing where
 
+import Control.Lens
 import Control.Monad.IO.Class
 import qualified Data.ByteString as BS
 import Data.CaseInsensitive
@@ -26,7 +27,7 @@ routedApplication router warpRequest = do
       qresponse    = case maybeRequest of
         Nothing      -> badRequestResponse
         Just request ->
-          let route = Route (requestMethod request) (requestPath request)
+          let route = Route (request^.requestMethod) (request^.requestPath)
               maybeResponse = router route request
           in case maybeResponse of
           	Nothing       -> badRequestResponse
