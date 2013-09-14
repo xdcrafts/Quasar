@@ -18,8 +18,8 @@ import Quasar.Api.QuasarAction
 import Quasar.Utils
 
 data User = User {
-  userId :: Maybe String
-  , login :: String
+  userId     :: Maybe String
+  , login    :: String
   , password :: String
 }
 
