@@ -15,7 +15,6 @@ import Network.HTTP.Types.Header
 import qualified Network.Wai as W
 import Quasar.Api.Http.Request
 import Quasar.Api.Http.Response
-import Quasar.Api.QuasarAction
 
 data Route = Route StdMethod [Text]
   deriving (Eq, Show)

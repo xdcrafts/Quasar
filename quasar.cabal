@@ -13,10 +13,10 @@ cabal-version:       >=1.16
 
 library
   hs-source-dirs: src
-  exposed-modules: Quasar.Api.Http.Response
+  exposed-modules: Quasar.Api.Action
+    , Quasar.Api.Http.Response
     , Quasar.Api.Http.Request
     , Quasar.Api.Routing
-    , Quasar.Api.QuasarAction
     , Quasar.Utils
   build-depends: base ==4.6.*
     , wai ==1.4.*

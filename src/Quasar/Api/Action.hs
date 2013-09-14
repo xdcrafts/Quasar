@@ -1,9 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE ImplicitParams #-}
-module Quasar.Api.QuasarAction where
+module Quasar.Api.Action where
 
-import Control.Lens
+import Control.Lens hiding (Action)
 import Data.Aeson
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
@@ -16,17 +16,17 @@ import Quasar.Utils
 type ErrorMessage = String
 type RequestTransformer a  = Request BS.ByteString -> Either String (Request a)
 type ResponseTransformer b = Either ErrorMessage (Response (Maybe b)) -> Response (Maybe LBS.ByteString)
-type QuasarActionType a b  = Request a -> Either ErrorMessage (Response (Maybe b))
+type ActionType a b        = Request a -> Either ErrorMessage (Response (Maybe b))
 
-data QuasarAction a b = QuasarAction {
+data Action a b = Action {
   _requestTransformer    :: RequestTransformer a
   , _responseTransformer :: ResponseTransformer b
-  , _quasarAction        :: QuasarActionType a b
+  , _quasarAction        :: ActionType a b
 }
 
-$(makeLenses ''QuasarAction)
+$(makeLenses ''Action)
 
-runAction :: Request BS.ByteString -> QuasarAction a b -> Response (Maybe LBS.ByteString)
+runAction :: Request BS.ByteString -> Action a b -> Response (Maybe LBS.ByteString)
 runAction requestBodyString action = 
   let requestBody = action^.requestTransformer $ requestBodyString
       response = case requestBody of
@@ -34,7 +34,7 @@ runAction requestBodyString action =
         Right rqst -> action^.quasarAction $ rqst
   in action^.responseTransformer $ response
 
-applyTypedJsonAction :: (?rqst :: Request BS.ByteString, FromJSON a, ToJSON b) => QuasarActionType a b -> Maybe (Response (Maybe LBS.ByteString))
+applyTypedJsonAction :: (?rqst :: Request BS.ByteString, FromJSON a, ToJSON b) => ActionType a b -> Maybe (Response (Maybe LBS.ByteString))
 applyTypedJsonAction action = Just $ runAction ?rqst $ typedJsonAction action
 
 maybeEncodeToJsonEither :: ToJSON a => ResponseTransformer a
@@ -45,8 +45,8 @@ maybeEncodeToJsonEither either = case either of
                              , _responseBody    = Just $ LBS.pack err
                              }
 
-typedJsonAction :: (FromJSON a, ToJSON b) => QuasarActionType a b -> QuasarAction a b
-typedJsonAction action = QuasarAction {
+typedJsonAction :: (FromJSON a, ToJSON b) => ActionType a b -> Action a b
+typedJsonAction action = Action {
   _requestTransformer    = eitherMapRequestBody eitherDecodeBs
   , _responseTransformer = maybeEncodeToJsonEither
   , _quasarAction        = action

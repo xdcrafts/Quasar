@@ -14,7 +14,7 @@ import Network.HTTP.Types.Status
 import Quasar.Api.Http.Response
 import Quasar.Api.Http.Request
 import Quasar.Api.Routing
-import Quasar.Api.QuasarAction
+import Quasar.Api.Action as Q
 import Quasar.Utils
 
 data User = User {
@@ -31,13 +31,13 @@ data Session = Session {
 
 $(deriveJSON (drop 0) ''Session)
 
-userAction :: QuasarActionType User User
+userAction :: Q.ActionType User User
 userAction rqst = Right Response { _responseStatus  = status200
                                  , _responseHeaders = [("Content-Type", "application/json")]
                                  , _responseBody    = Just $ rqst^.requestBody
                                  }
 
-sessionAction :: QuasarActionType Session Session
+sessionAction :: Q.ActionType Session Session
 sessionAction rqst = Right Response { _responseStatus  = status200
                                     , _responseHeaders = [("Content-Type", "application/json")]
                                     , _responseBody    = Just $ rqst^.requestBody
