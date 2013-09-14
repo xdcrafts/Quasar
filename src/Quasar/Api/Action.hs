@@ -31,7 +31,7 @@ withoutRequestTransformation = Right
 
 maybeEncodeToJsonEither :: ToJSON a => ResponseTransformer a
 maybeEncodeToJsonEither either = case either of
-  Right response -> response `mapResponseBody` (fmap encode)
+  Right response -> withHeaders (response `mapResponseBody` (fmap encode)) [("Content-Type", "application/json")]
   Left err       -> Response { _responseStatus  = status500
                              , _responseHeaders = [("Content-Type", "text/html")]
                              , _responseBody    = Just $ LBS.pack err

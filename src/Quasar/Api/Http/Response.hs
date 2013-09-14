@@ -20,6 +20,8 @@ data Response a = Response
 
 $(makeLenses ''Response)
 
+ok = Response { _responseStatus = status200, _responseHeaders = [], _responseBody = Nothing }
+
 badRequestResponse :: Response (Maybe LBS.ByteString)
 badRequestResponse = Response
   { _responseStatus  = status404

@@ -32,16 +32,10 @@ data Session = Session {
 $(deriveJSON (drop 0) ''Session)
 
 userAction :: Q.ActionType User User
-userAction rqst = Right Response { _responseStatus  = status200
-                                 , _responseHeaders = [("Content-Type", "application/json")]
-                                 , _responseBody    = Just $ rqst^.requestBody
-                                 }
+userAction rqst = Right ok { _responseBody = Just $ rqst^.requestBody }
 
 sessionAction :: Q.ActionType Session Session
-sessionAction rqst = Right Response { _responseStatus  = status200
-                                    , _responseHeaders = [("Content-Type", "application/json")]
-                                    , _responseBody    = Just $ rqst^.requestBody
-                                    }
+sessionAction rqst = Right ok { _responseBody = Just $ rqst^.requestBody }
 
 actionRouter :: Route -> Request BS.ByteString -> Maybe (Response (Maybe LBS.ByteString))
 actionRouter route request = let ?rqst = request in	case route of
