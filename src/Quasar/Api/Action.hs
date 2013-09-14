@@ -26,16 +26,8 @@ data Action a b = Action {
 
 $(makeLenses ''Action)
 
-runAction :: Request BS.ByteString -> Action a b -> Response (Maybe LBS.ByteString)
-runAction requestBodyString action = 
-  let requestBody = action^.requestTransformer $ requestBodyString
-      response = case requestBody of
-        Left error -> Left error
-        Right rqst -> action^.quasarAction $ rqst
-  in action^.responseTransformer $ response
-
-applyTypedJsonAction :: (?rqst :: Request BS.ByteString, FromJSON a, ToJSON b) => ActionType a b -> Maybe (Response (Maybe LBS.ByteString))
-applyTypedJsonAction action = Just $ runAction ?rqst $ typedJsonAction action
+withoutRequestTransformation :: RequestTransformer BS.ByteString
+withoutRequestTransformation = Right
 
 maybeEncodeToJsonEither :: ToJSON a => ResponseTransformer a
 maybeEncodeToJsonEither either = case either of
@@ -44,6 +36,27 @@ maybeEncodeToJsonEither either = case either of
                              , _responseHeaders = [("Content-Type", "text/html")]
                              , _responseBody    = Just $ LBS.pack err
                              }
+
+runAction :: Request BS.ByteString -> Action a b -> Response (Maybe LBS.ByteString)
+runAction requestBodyString action = 
+  let requestBody = action^.requestTransformer $ requestBodyString
+      response = case requestBody of
+        Left error -> Left error
+        Right rqst -> action^.quasarAction $ rqst
+  in action^.responseTransformer $ response
+
+applyHttpToJsonAction :: (?rqst :: Request BS.ByteString, ToJSON b) => ActionType BS.ByteString b -> Maybe (Response (Maybe LBS.ByteString))
+applyHttpToJsonAction action = Just $ runAction ?rqst $ httpToJsonAction action
+
+applyTypedJsonAction :: (?rqst :: Request BS.ByteString, FromJSON a, ToJSON b) => ActionType a b -> Maybe (Response (Maybe LBS.ByteString))
+applyTypedJsonAction action = Just $ runAction ?rqst $ typedJsonAction action
+
+httpToJsonAction :: ToJSON b => ActionType BS.ByteString b -> Action BS.ByteString b
+httpToJsonAction action = Action {
+  _requestTransformer    = withoutRequestTransformation
+  , _responseTransformer = maybeEncodeToJsonEither
+  , _quasarAction        = action
+}
 
 typedJsonAction :: (FromJSON a, ToJSON b) => ActionType a b -> Action a b
 typedJsonAction action = Action {
