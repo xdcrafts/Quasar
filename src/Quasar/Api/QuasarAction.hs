@@ -16,7 +16,7 @@ import Quasar.Utils
 type ErrorMessage = String
 type RequestTransformer a  = Request BS.ByteString -> Either String (Request a)
 type ResponseTransformer b = Either ErrorMessage (Response (Maybe b)) -> Response (Maybe LBS.ByteString)
-type QuasarActionType a b  = Either ErrorMessage (Request a) -> Either ErrorMessage (Response (Maybe b))
+type QuasarActionType a b  = Request a -> Either ErrorMessage (Response (Maybe b))
 
 data QuasarAction a b = QuasarAction {
   _requestTransformer    :: RequestTransformer a
@@ -27,8 +27,12 @@ data QuasarAction a b = QuasarAction {
 $(makeLenses ''QuasarAction)
 
 runAction :: Request BS.ByteString -> QuasarAction a b -> Response (Maybe LBS.ByteString)
-runAction requestBodyString action = action^.responseTransformer $ action^.quasarAction $ requestBody
-  where requestBody = action^.requestTransformer $ requestBodyString
+runAction requestBodyString action = 
+  let requestBody = action^.requestTransformer $ requestBodyString
+      response = case requestBody of
+        Left error -> Left error
+        Right rqst -> action^.quasarAction $ rqst
+  in action^.responseTransformer $ response
 
 applyTypedJsonAction :: (?rqst :: Request BS.ByteString, FromJSON a, ToJSON b) => QuasarActionType a b -> Maybe (Response (Maybe LBS.ByteString))
 applyTypedJsonAction action = Just $ runAction ?rqst $ typedJsonAction action

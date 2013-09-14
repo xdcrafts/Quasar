@@ -32,22 +32,16 @@ data Session = Session {
 $(deriveJSON (drop 0) ''Session)
 
 userAction :: QuasarActionType User User
-userAction eitherUserRequest = case eitherUserRequest of
-  Left error -> Left error
-  Right rqst -> let user = rqst^.requestBody in
-    Right Response { _responseStatus  = status200
-                   , _responseHeaders = [("Content-Type", "application/json")]
-                   , _responseBody    = Just $ user
-                   }
+userAction rqst = Right Response { _responseStatus  = status200
+                                 , _responseHeaders = [("Content-Type", "application/json")]
+                                 , _responseBody    = Just $ rqst^.requestBody
+                                 }
 
 sessionAction :: QuasarActionType Session Session
-sessionAction eitherSessionRequest = case eitherSessionRequest of
-  Left error -> Left error
-  Right rqst -> let session = rqst^.requestBody in
-    Right Response { _responseStatus  = status200
-                   , _responseHeaders = [("Content-Type", "application/json")]
-                   , _responseBody    = Just $ session
-                   }
+sessionAction rqst = Right Response { _responseStatus  = status200
+                                    , _responseHeaders = [("Content-Type", "application/json")]
+                                    , _responseBody    = Just $ rqst^.requestBody
+                                    }
 
 actionRouter :: Route -> Request BS.ByteString -> Maybe (Response (Maybe LBS.ByteString))
 actionRouter route request = let ?rqst = request in	case route of
