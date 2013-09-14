@@ -25,11 +25,16 @@ data Request a = Request
 
 $(makeLenses ''Request)
 
-filterHeaders :: (Header -> Bool) -> Request a -> Request a
-filterHeaders f r = requestHeaders .~ (filter f $ r^.requestHeaders) $ r
+filterHeaders :: Request a -> (Header -> Bool) -> Request a
+filterHeaders request f = requestHeaders .~ (filter f $ request^.requestHeaders) $ request
 
-mapBody ::  (a -> b) -> Request a -> Request b
-mapBody f r = requestBody .~ (f $ r^.requestBody) $ r
+mapRequestBody :: (a -> b) -> Request a -> Request b
+mapRequestBody f request = requestBody .~ (f $ request^.requestBody) $ request
+
+eitherMapRequestBody :: (a -> Either String b) -> Request a -> Either String (Request b)
+eitherMapRequestBody f request = case f $ request^.requestBody of
+  Left error -> Left error
+  Right body -> Right (requestBody .~ body $ request)
 
 parseRawRequestBody :: W.Request -> IO BS.ByteString
 parseRawRequestBody warpRequest = mconcat <$> runResourceT (W.requestBody warpRequest $$ consume)

@@ -16,6 +16,7 @@ library
   exposed-modules: Quasar.Api.Http.Response
     , Quasar.Api.Http.Request
     , Quasar.Api.Routing
+    , Quasar.Api.QuasarAction
     , Quasar.Utils
   build-depends: base ==4.6.*
     , wai ==1.4.*
@@ -29,6 +30,7 @@ library
     , transformers ==0.3.*
     , case-insensitive ==0.4.*
     , lens ==3.9
+    , aeson ==0.6.1.*
 
 executable quasar-example
   main-is:           Main.hs
@@ -38,6 +40,7 @@ executable quasar-example
     , bytestring ==0.10.*
     , quasar
     , lens ==3.9
+    , aeson ==0.6.1.*
 
 executable warp-example
   main-is:           Main.hs
